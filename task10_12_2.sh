@@ -78,7 +78,7 @@ services:
     volumes:
       - $dir/etc/nginx/nginx.conf:/etc/nginx/conf.d/default.conf:ro
       - $NGINX_LOG_DIR:/var/log/nginx
-      - $dir/etc/ssl/certs:/etc/ssl/certs/nginx
+      - $dir/etc/ssl/certs:/etc/ssl/certs
   apache:
     image: $APACHE_IMAGE" > docker-compose.yml
 
