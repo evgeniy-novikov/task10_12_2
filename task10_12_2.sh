@@ -3,8 +3,8 @@
 dir="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 cd $dir
 source "$dir/config"
-mkdir -p $dir/etc/nginx/
-mkdir -p $dir/etc/ssl/certs
+mkdir -p $dir/etc
+mkdir -p $dir/certs
 
 ################ install docker and other ###########
     apt-get update
@@ -44,12 +44,12 @@ IP.1  = $EXTERNAL_IP
 DNS.1 = $HOST_NAME" > /usr/lib/ssl/openssl-san.cnf
 
 ########## SSL ######
-openssl genrsa -out $dir/etc/ssl/certs/root-ca.key 4096
-openssl req -x509 -new -key $dir/etc/ssl/certs/root-ca.key -days 365 -out $dir/etc/ssl/certs/root-ca.crt -subj "/C=UA/L=Kharkov/O=HOME/OU=IT/CN=$HOST_NAME"
-openssl genrsa -out $dir/etc/ssl/certs/web.key 4096
-openssl req -new -key $dir/etc/ssl/certs/web.key -out $dir/etc/ssl/certs/web.csr -config /usr/lib/ssl/openssl-san.cnf -subj "/C=UA/L=Kharkov/O=HOME/OU=IT/CN=$HOST_NAME"
-openssl x509 -req -in $dir/etc/ssl/certs/web.csr -CA $dir/etc/ssl/certs/root-ca.crt  -CAkey $dir/etc/ssl/certs/root-ca.key -CAcreateserial -out $dir/etc/ssl/certs/web.crt -days 365 -extensions v3_req -extfile /usr/lib/ssl/openssl-san.cnf
-cat $dir/etc/ssl/certs/root-ca.crt >> $dir/etc/ssl/certs/web.crt
+openssl genrsa -out $dir/certs/root-ca.key 4096
+openssl req -x509 -new -key $dir/certs/root-ca.key -days 365 -out $dir/certs/root-ca.crt -subj "/C=UA/L=Kharkov/O=HOME/OU=IT/CN=$HOST_NAME"
+openssl genrsa -out $dir/certs/web.key 4096
+openssl req -new -key $dir/certs/web.key -out $dir/certs/web.csr -config /usr/lib/ssl/openssl-san.cnf -subj "/C=UA/L=Kharkov/O=HOME/OU=IT/CN=$HOST_NAME"
+openssl x509 -req -in $dir/certs/web.csr -CA $dir/certs/root-ca.crt  -CAkey $dir/certs/root-ca.key -CAcreateserial -out $dir/certs/web.crt -days 365 -extensions v3_req -extfile /usr/lib/ssl/openssl-san.cnf
+cat $dir/certs/root-ca.crt >> $dir/certs/web.crt
 ###############################################################
 
 ################## NGINX CONF #################################
@@ -66,7 +66,7 @@ ssl_certificate_key /etc/ssl/certs/web.key;
             proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;
             proxy_set_header X-Forwarded-Proto \$scheme;
     }
-} " >> $dir/etc/nginx/nginx.conf
+} " >> $dir/etc/nginx.conf
 
 ################# YML CONFIG ##################################
 echo "version: '2'
@@ -76,9 +76,9 @@ services:
     ports:
       - '$NGINX_PORT:$NGINX_PORT'
     volumes:
-      - $dir/etc/nginx/nginx.conf:/etc/nginx/conf.d/default.conf:ro
+      - $dir/etc/nginx.conf:/etc/nginx/conf.d/default.conf:ro
       - $NGINX_LOG_DIR:/var/log/nginx
-      - $dir/etc/ssl/certs:/etc/ssl/certs
+      - $dir/certs:/etc/ssl/certs
   apache:
     image: $APACHE_IMAGE" > docker-compose.yml
 
