@@ -1,0 +1,9 @@
+# Host parameters
+EXTERNAL_IP=192.168.0.104
+HOST_NAME=mirantis.test
+
+# Docker parameters
+NGINX_IMAGE="nginx:1.13"
+APACHE_IMAGE="httpd:2.4"
+NGINX_PORT=1080
+NGINX_LOG_DIR=/srv/log/nginx
